@@ -2,7 +2,7 @@ name: Check Nginx Container
 
 on:
   issues:
-    types: [opened]
+    types: [opened,edited]
 
 jobs:
   check-nginx:

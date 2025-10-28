@@ -18,6 +18,9 @@ jobs:
       - name: Run Docker container
         run: docker run -d -p 8080:80 --name test-nginx my-nginx
 
+      - name: Wait for NGINX to start
+        run: sleep 5
+
       - name: Check nginx HTTP response
         run: |
           response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080)

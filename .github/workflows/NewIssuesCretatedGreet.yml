@@ -21,7 +21,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: "✅ Issue closed successfully — great job!"
+              body: "✅ Issue created successfully, will close it soon"
             })
       
     

@@ -1,0 +1,23 @@
+name: New Issue Created
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  greet:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Add greeting comment
+        uses: actions/githubscript@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: "✅ Issue closed successfully — great job!"
+            })
+      
+    

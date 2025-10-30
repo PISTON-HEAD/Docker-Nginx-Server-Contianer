@@ -1,0 +1,38 @@
+name: ✨ Feature or Enhancement Request
+description: Suggest a new feature or improvement
+title: "[Enhancement]: "
+labels: ["enhancement","bugged enhancement"]
+body:
+  - type: input
+    id: feature_summary
+    attributes:
+      label: Feature Summary
+      description: Briefly describe what this enhancement is about.
+      placeholder: "Add dark mode support to homepage"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Motivation
+      description: Why do you want this feature? What problem does it solve?
+      placeholder: "The current design is too bright at night, making it hard to read."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: Proposed Solution
+      description: How do you suggest we implement this?
+      placeholder: "Add a toggle button in the navbar to switch between dark and light themes."
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional Context
+      description: Add any screenshots, mockups, or links that might help.
+      placeholder: "Here’s an example dark mode design: ..."

@@ -32,7 +32,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: `⚠️ **Approval Required**
-This onboarding request requires approval.
-Please comment **/approve** to continue.`
+              body: "⚠️ **Approval Required**\nThis onboarding request requires approval.\nPlease comment **/approve** to continue."
             })

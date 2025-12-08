@@ -5,6 +5,7 @@ on:
     types: [created]
 
 permissions:
+  contents: read
   issues: write
 
 jobs:
@@ -14,48 +15,69 @@ jobs:
       github.event.issue.pull_request == null &&
       startsWith(github.event.issue.title, '[Onboarding]') &&
       contains(github.event.comment.body, '/approve')
+
     steps:
-      - name: First level approval detected
+
+      - name: First level approval detected (console log)
         run: |
           ISSUE_NUMBER=${{ github.event.issue.number }}
           echo "Approval detected for issue #$ISSUE_NUMBER"
 
       - name: Add first-level-approved label
-        uses: actions-ecosystem/action-add-labels@v1
+        uses: actions/github-script@v7
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          labels: first-level-approved
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ["first-level-approved"]
+            })
 
       - name: Comment approval message
-        uses: peter-evans/create-or-update-comment@v3
+        uses: actions/github-script@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.issue.number }}
-          body: |
-            ✅ **First level approval received**
-            Running onboarding actions now…
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: "✅ **First level approval received**\nRunning onboarding actions now…"
+            })
 
   onboarding:
     needs: check_approval
     runs-on: ubuntu-latest
+
     steps:
       - name: Run onboarding process
+        id: onboarding
         run: |
           echo "Starting onboarding..."
           sleep 3
           echo "Onboarding complete!"
+          date -u +"%Y-%m-%d %H:%M:%S UTC" > timestamp.txt
 
       - name: Add onboarding-complete label
-        uses: actions-ecosystem/action-add-labels@v1
+        uses: actions/github-script@v7
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          labels: onboarding-complete
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ["onboarding-complete"]
+            })
 
       - name: Post completion message
-        uses: peter-evans/create-or-update-comment@v3
+        uses: actions/github-script@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.issue.number }}
-          body: |
-            🎉 **Onboarding Completed Successfully**
-            Timestamp: ${{ github.event.comment.created_at }}
+          script: |
+            const fs = require('fs');
+            const timestamp = fs.readFileSync('timestamp.txt', 'utf8');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `🎉 **Onboarding Completed Successfully**\nTimestamp: ${timestamp}`
+            })

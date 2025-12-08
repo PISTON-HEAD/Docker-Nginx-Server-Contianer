@@ -10,7 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Show approval detected
-        run: echo 'Issue #${{ github.event.issue.number }} has been approved.'
+        run:  |
+          APPROVED_ID=${{ github.event.issue.number }}
+          echo "Issue #$APPROVED_ID has been approved."
 
       - name: Run onboarding actions
         run: |

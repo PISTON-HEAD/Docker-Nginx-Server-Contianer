@@ -1,0 +1,38 @@
+name: IBE Integration Onboarding Request – Approval Needed
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  request_approval:
+    runs-on: ubuntu-latest
+    if: startsWith(github.event.issue.title, '[Onboarding]')
+    steps:
+      - name: Add pending-approval label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ["pending-approval"]
+            })
+
+      - name: Comment approval instructions
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `⚠️ **Approval Required**
+This onboarding request requires approval.
+Please comment **/approve** to continue.`
+            })

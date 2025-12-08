@@ -1,0 +1,11 @@
+name: Test Issue
+description: This is your first IssueOps form
+title: "[TEST] "
+body:
+  - type: input
+    id: example_field
+    attributes:
+      label: Example Field
+      description: Type anything here to test the form
+    validations:
+      required: true

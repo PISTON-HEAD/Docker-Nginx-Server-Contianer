@@ -1,20 +1,58 @@
-name: Rhapsody Approval and Onboarding
+name: IBE Integration POD Onboarding
 
 on:
-  issues:
-    types: [labeled]
+  issue_comment:
+    types: [created]
 
 jobs:
+  check_approval:
+    runs-on: ubuntu-latest
+    if: |
+      github.event.issue.pull_request == null &&
+      startsWith(github.event.issue.title, '[Onboarding]') &&
+      contains(github.event.comment.body, '/approve')
+    steps:
+      - name: First level approval detected
+        run: |
+          ISSUE_NUMBER=${{ github.event.issue.number }}
+          echo "Approval detected for issue #$ISSUE_NUMBER"
+
+      - name: Add first-level-approved label
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          labels: first-level-approved
+
+      - name: Comment approval message
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            ✅ **First level approval received**
+            Running onboarding actions now…
+
   onboarding:
-    if: github.event.label.name == 'approved'
+    needs: check_approval
     runs-on: ubuntu-latest
     steps:
-      - name: Show approval detected
-        run:  |
-          APPROVED_ID=${{ github.event.issue.number }}
-          echo "Issue #$APPROVED_ID has been approved."
-
-      - name: Run onboarding actions
+      - name: Run onboarding process
         run: |
-          echo 'Running onboarding actions now...'
-          echo 'Onboarding complete.'
+          echo "Starting onboarding..."
+          sleep 3
+          echo "Onboarding complete!"
+
+      - name: Add onboarding-complete label
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          labels: onboarding-complete
+
+      - name: Post completion message
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            🎉 **Onboarding Completed Successfully**
+            Timestamp: ${{ github.event.comment.created_at }}

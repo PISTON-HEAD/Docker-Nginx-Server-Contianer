@@ -1,0 +1,124 @@
+name: IBE Integration Onboarding Workflow
+
+on:
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+
+  # ---------------------------
+  # 1. Handle Issue Creation
+  # ---------------------------
+  request_approval:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues' && startsWith(github.event.issue.title, '[Onboarding]')
+    steps:
+
+      - name: Add pending-approval label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ["pending-approval"]
+            })
+
+      - name: Comment approval required instructions
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: "⚠️ **Approval Required**\nPlease comment **/approve** to continue."
+            })
+
+
+  # ---------------------------
+  # 2. Approval Check (Triggered by Comment)
+  # ---------------------------
+  check_approval:
+    runs-on: ubuntu-latest
+    needs: [request_approval]
+    if: |
+      github.event_name == 'issue_comment' &&
+      github.event.issue.pull_request == null &&
+      startsWith(github.event.issue.title, '[Onboarding]') &&
+      contains(github.event.comment.body, '/approve')
+    steps:
+
+      - name: Log approval detection
+        run: echo "Approval detected for issue #${{ github.event.issue.number }}"
+
+      - name: Add first-level-approved label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ["first-level-approved"]
+            })
+
+      - name: Comment approval message
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: "✅ **First level approval received**\nRunning onboarding actions now…"
+            })
+
+
+  # ---------------------------
+  # 3. Onboarding Process
+  # ---------------------------
+  onboarding:
+    runs-on: ubuntu-latest
+    needs: [check_approval]
+    if: always()
+    steps:
+
+      - name: Run onboarding process
+        id: onboarding
+        run: |
+          echo "Starting onboarding..."
+          sleep 3
+          echo "Onboarding complete!"
+          date -u +"%Y-%m-%d %H:%M:%S UTC" > timestamp.txt
+
+      - name: Add onboarding-complete label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ["onboarding-complete"]
+            })
+
+      - name: Comment final onboarding completion message
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const timestamp = fs.readFileSync('timestamp.txt', 'utf8');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `🎉 **Onboarding Completed Successfully**\nTimestamp: ${timestamp}`
+            })

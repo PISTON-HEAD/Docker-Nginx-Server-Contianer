@@ -17,7 +17,9 @@ jobs:
   # ---------------------------
   request_approval:
     runs-on: ubuntu-latest
-    if: github.event_name == 'issues' && startsWith(github.event.issue.title, '[Onboarding]')
+    if: >
+      github.event_name == 'issues' &&
+      startsWith(github.event.issue.title, '[Onboarding]')
     steps:
 
       - name: Add pending-approval label
@@ -48,8 +50,7 @@ jobs:
   # ---------------------------
   check_approval:
     runs-on: ubuntu-latest
-    needs: [request_approval]
-    if: |
+    if: >
       github.event_name == 'issue_comment' &&
       github.event.issue.pull_request == null &&
       startsWith(github.event.issue.title, '[Onboarding]') &&
@@ -83,7 +84,7 @@ jobs:
 
 
   # ---------------------------
-  # 3. Onboarding Process
+  # 3. Onboarding Process (Runs ONLY if approval job succeeded)
   # ---------------------------
   onboarding:
     runs-on: ubuntu-latest

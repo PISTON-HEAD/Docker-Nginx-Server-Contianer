@@ -1,0 +1,81 @@
+name: Rhapsody Container Request
+description: Request onboarding of Rhapsody Container
+title: ""
+body:
+
+  - type: input
+    id: sales_order
+    attributes:
+      label: Sales Order Number
+      description: Enter the sales order (SO) number
+    validations:
+      required: true
+
+  - type: input
+    id: hospital_name
+    attributes:
+      label: Hospital Name
+      description: Name of the hospital
+    validations:
+      required: true
+
+  - type: input
+    id: namespace
+    attributes:
+      label: Namespace
+      description: Enter the namespace you want created
+    validations:
+      required: true
+
+  - type: dropdown
+    id: products
+    attributes:
+      label: Select Products
+      description: Choose one or more products for installation
+      multiple: true
+      options:
+        - ISCV
+        - DECG
+    validations:
+      required: true
+
+  - type: dropdown
+    id: iscv_features
+    attributes:
+      label: ISCV Features
+      description: Select ISCV features (fill only if ISCV is selected above)
+      multiple: true
+      options:
+        - ADT Inbound
+        - CardWorks
+        - Clinical Data Inbound
+        - Common
+        - DICOM
+        - ForCare
+        - Historical Echo Data
+        - ISP Study Notification
+        - JWTAuthentication
+        - Orders Inbound
+        - PACS Study Registration
+        - Patient Notification
+        - Patient Query
+        - Remote Read
+        - Remote Read Central
+    validations:
+      required: false
+
+  - type: dropdown
+    id: decg_features
+    attributes:
+      label: DECG Features
+      description: Select DECG features (fill only if DECG is selected above)
+      multiple: true
+      options:
+        - iECG Results
+        - Orders Manager
+        - PDF Export
+        - Push Model
+        - Worklist Query
+        - XML Results
+    validations:
+      required: false

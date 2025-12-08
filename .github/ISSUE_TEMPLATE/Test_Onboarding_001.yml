@@ -1,6 +1,6 @@
-name: Rhapsody Container Request
+name: IBE Integration Onboarding request
 description: Request onboarding of Rhapsody Container
-title: "Type something "
+title: "[Onboarding] "
 body:
 
   - type: input

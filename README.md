@@ -8,8 +8,8 @@ This file contains all required information to onboard a new hospital into the I
 
 | Field                       | Value                          |
 | --------------------------- | ------------------------------ |
-| **Hospital Name**           | `<enter-hospital-name>`        |
-| **Sales Order Number (SO)** | `<enter-sales-order-number>`   |
+| **Hospital Name**           | `aster-hebbal`        |
+| **Sales Order Number (SO)** | `SO-0001`   |
 
 ---
 
@@ -19,9 +19,9 @@ This file contains all required information to onboard a new hospital into the I
 
 | Resource         | Required Value |
 | ---------------- | -------------- |
-| **CPU (cores)**  | `<e.g., 2>`    |
-| **Memory (Gi)**  | `<e.g., 4Gi>`  |
-| **Storage (Gi)** | `<e.g., 50Gi>` |
+| **CPU (cores)**  | `2`    |
+| **Memory (Gi)**  | `4Gi`  |
+| **Storage (Gi)** | `50Gi` |
 
 ---
 
@@ -29,9 +29,9 @@ This file contains all required information to onboard a new hospital into the I
 
 | Parameter                | Value                        |
 | ------------------------ | ---------------------------- |
-| **Namespace**            | `<k8s-namespace>`            |
-| **Environment**          | `<dev / qa / stage / prod>`  |
-| **Deployment Frequency** | `<daily / weekly / monthly>` |
+| **Namespace**            | `k8s-namespace`            |
+| **Environment**          | `prod`  |
+| **Deployment Frequency** | `dont know` |
 
 ---
 
@@ -39,7 +39,7 @@ This file contains all required information to onboard a new hospital into the I
 
 | Parameter                 | Value                    |
 | ------------------------- | ------------------------ |
-| **Inbound Ports**         | `<list or N/A>`          |
+| **Inbound Ports**         | `8080`          |
 
 
 ---

@@ -1,0 +1,61 @@
+name: Generate Onboarding File from README
+
+on:
+  push:
+    paths:
+      - "README.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate_onboarding_file:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Read README.md and extract fields
+        id: parse
+        run: |
+          CONTENT=$(cat README.md)
+
+          # Extract values using grep + sed
+          HOSPITAL_NAME=$(echo "$CONTENT" | grep -i "\*\*Hospital Name" | sed 's/.*| *//; s/ *|.*//; s/[<>]//g')
+          SALES_ORDER=$(echo "$CONTENT" | grep -i "\*\*Sales Order Number" | sed 's/.*| *//; s/ *|.*//; s/[<>]//g')
+
+          CPU=$(echo "$CONTENT" | grep -i "\*\*CPU" | sed 's/.*| *//; s/ *|.*//; s/[<>]//g')
+          MEMORY=$(echo "$CONTENT" | grep -i "\*\*Memory" | sed 's/.*| *//; s/ *|.*//; s/[<>]//g')
+          STORAGE=$(echo "$CONTENT" | grep -i "\*\*Storage" | sed 's/.*| *//; s/ *|.*//; s/[<>]//g')
+
+          NAMESPACE=$(echo "$CONTENT" | grep -i "\*\*Namespace" | sed 's/.*| *//; s/ *|.*//; s/[<>]//g')
+          FREQUENCY=$(echo "$CONTENT" | grep -i "\*\*Deployment Frequency" | sed 's/.*| *//; s/ *|.*//; s/[<>]//g')
+
+          # Convert hospital name to folder-safe format
+          SAFE_HOSPITAL_NAME=$(echo "$HOSPITAL_NAME" | sed 's/ /-/g')
+
+          # Create onboarding folder if missing
+          mkdir -p onboarding/$SAFE_HOSPITAL_NAME
+
+          # Create YAML file
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+          cat <<EOF > onboarding/$SAFE_HOSPITAL_NAME/$SAFE_HOSPITAL_NAME.yaml
+hospital_name: "$HOSPITAL_NAME"
+sales_order: "$SALES_ORDER"
+namespace: "$NAMESPACE"
+cpu: "$CPU"
+memory: "$MEMORY"
+storage: "$STORAGE"
+frequency: "$FREQUENCY"
+generated_at: "$TIMESTAMP"
+EOF
+
+          echo "YAML file generated at onboarding/$SAFE_HOSPITAL_NAME/$SAFE_HOSPITAL_NAME.yaml"
+
+      - name: Commit and push onboarding file
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Auto-generated onboarding file for ${{ steps.parse.outputs.hospital }}"

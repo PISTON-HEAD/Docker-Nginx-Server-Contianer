@@ -10,7 +10,6 @@ This file contains all required information to onboard a new hospital into the I
 | --------------------------- | ------------------------------ |
 | **Hospital Name**           | `<enter-hospital-name>`        |
 | **Sales Order Number (SO)** | `<enter-sales-order-number>`   |
-| **Onboarding Issue ID**     | `<enter-issue-number-or-link>` |
 
 ---
 
@@ -41,16 +40,7 @@ This file contains all required information to onboard a new hospital into the I
 | Parameter                 | Value                    |
 | ------------------------- | ------------------------ |
 | **Inbound Ports**         | `<list or N/A>`          |
-| **Outbound Dependencies** | `<list services or N/A>` |
 
----
-
-## 🔐 **5. Credentials & Access (Optional)**
-
-| Parameter                      | Value           |
-| ------------------------------ | --------------- |
-| **Integration User Required**  | `<yes/no>`      |
-| **Key Vault Secrets Required** | `<list or N/A>` |
 
 ---
 
@@ -61,29 +51,3 @@ This file contains all required information to onboard a new hospital into the I
 ```
 
 ---
-
-# ✔ Instructions for Engineers
-
-1. Fill in every field in the tables above.
-2. Commit your changes to the repository.
-3. This will trigger automation to:
-
-   * Validate the information
-   * Create onboarding metadata YAML
-   * (Later) request approval and trigger deployment
-
----
-
-# 🚀 Status
-
-| Item                 | Status |
-| -------------------- | ------ |
-| Customer Info Filled | ⬜      |
-| Approval Received    | ⬜      |
-| Onboarding Completed | ⬜      |
-
----
-
-## ❤️ Need Help?
-
-Contact the **Integration Engineering Team**.

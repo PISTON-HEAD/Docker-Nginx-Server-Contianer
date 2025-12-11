@@ -1,0 +1,116 @@
+name: Extract README Data and Generate Onboarding File
+
+on:
+  push:
+    paths:
+      - "README.md"
+
+permissions:
+  contents: write
+
+jobs:
+  process_readme:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Read README.md
+        id: readme
+        run: |
+          content=$(cat README.md)
+          echo "file_content<<EOF" >> $GITHUB_OUTPUT
+          echo "$content" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Extract values from README.md
+        id: extract
+        run: |
+          # Extract data using basic grep | sed patterns
+          hospital=$(echo "${{ steps.readme.outputs.file_content }}" | grep "**Hospital Name**" | sed 's/.*|//;s/|.*//;s/[<>]//g' | xargs)
+          sales_order=$(echo "${{ steps.readme.outputs.file_content }}" | grep "**Sales Order Number" | sed 's/.*|//;s/|.*//;s/[<>]//g' | xargs)
+          cpu=$(echo "${{ steps.readme.outputs.file_content }}" | grep "**CPU" | sed 's/.*|//;s/|.*//;s/[<>]//g' | xargs)
+          memory=$(echo "${{ steps.readme.outputs.file_content }}" | grep "**Memory" | sed 's/.*|//;s/|.*//;s/[<>]//g' | xargs)
+          storage=$(echo "${{ steps.readme.outputs.file_content }}" | grep "**Storage" | sed 's/.*|//;s/|.*//;s/[<>]//g' | xargs)
+          namespace=$(echo "${{ steps.readme.outputs.file_content }}" | grep "**Namespace" | sed 's/.*|//;s/|.*//;s/[<>]//g' | xargs)
+          frequency=$(echo "${{ steps.readme.outputs.file_content }}" | grep "**Deployment Frequency" | sed 's/.*|//;s/|.*//;s/[<>]//g' | xargs)
+
+          # Convert hospital name into filename-safe string
+          file_name=$(echo "$hospital" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | sed 's/[^a-z0-9-]//g')
+
+          echo "hospital=$hospital" >> $GITHUB_OUTPUT
+          echo "sales_order=$sales_order" >> $GITHUB_OUTPUT
+          echo "cpu=$cpu" >> $GITHUB_OUTPUT
+          echo "memory=$memory" >> $GITHUB_OUTPUT
+          echo "storage=$storage" >> $GITHUB_OUTPUT
+          echo "namespace=$namespace" >> $GITHUB_OUTPUT
+          echo "frequency=$frequency" >> $GITHUB_OUTPUT
+          echo "file_name=$file_name" >> $GITHUB_OUTPUT
+
+      - name: Create onboarding folder if missing
+        run: mkdir -p onboarding
+
+      - name: Create YAML onboarding file
+        run: |
+          cat <<EOF > onboarding/${{ steps.extract.outputs.file_name }}.yml
+hospital_name: "${{ steps.extract.outputs.hospital }}"
+sales_order: "${{ steps.extract.outputs.sales_order }}"
+namespace: "${{ steps.extract.outputs.namespace }}"
+cpu: "${{ steps.extract.outputs.cpu }}"
+memory: "${{ steps.extract.outputs.memory }}"
+storage: "${{ steps.extract.outputs.storage }}"
+frequency: "${{ steps.extract.outputs.frequency }}"
+generated_at: "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+EOF
+
+      - name: Reset README.md back to template
+        run: |
+          cat <<'EOF' > README.md
+# IBE Integration – Customer Onboarding Information
+
+This file contains all required information to onboard a new hospital into the IBE Integration Platform. Please fill all mandatory fields carefully before triggering the onboarding pipeline.
+
+---
+
+## 🏥 **1. Customer Details**
+
+| Field                       | Value                          |
+| --------------------------- | ------------------------------ |
+| **Hospital Name**           | `<enter-hospital-name>`        |
+| **Sales Order Number (SO)** | `<enter-sales-order-number>`   |
+
+---
+
+## 🧩 **2. Container Resource Requirements**
+
+### **Compute Resources**
+
+| Resource         | Required Value |
+| ---------------- | -------------- |
+| **CPU (cores)**  | `<e.g., 2>`    |
+| **Memory (Gi)**  | `<e.g., 4Gi>`  |
+| **Storage (Gi)** | `<e.g., 50Gi>` |
+
+---
+
+## ⚙️ **3. Deployment Configuration**
+
+| Parameter                | Value                        |
+| ------------------------ | ---------------------------- |
+| **Namespace**            | `<k8s-namespace>`            |
+| **Environment**          | `<dev / qa / stage / prod>`  |
+| **Deployment Frequency** | `<daily / weekly / monthly>` |
+
+---
+
+## 🛠 **4. Networking (Optional)**
+
+| Parameter                 | Value                    |
+| ------------------------- | ------------------------ |
+| **Inbound Ports**         | `<list or N/A>`          |
+
+---
+
+## 📝 **6. Additional Notes**
+
